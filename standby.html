@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oculus Daily On-Call Standby</title>
+    <style>
+        :root {
+            --primary-bg: #f4f7f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-light: #6b7280;
+            --oculus-blue: #1e3a8a;
+            --oculus-dark: #0f172a;
+            --accent-green: #10b981;
+            --accent-amber: #f59e0b;
+            --accent-red: #ef4444;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--primary-bg);
+            margin: 0;
+            padding: 0;
+            color: var(--text-main);
+        }
+        header {
+            background-color: var(--oculus-blue);
+            color: white;
+            padding: 20px 15px 16px 15px;
+            text-align: center;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 22px;
+            letter-spacing: 0.8px;
+        }
+        header p {
+            margin: 5px 0 0 0;
+            font-size: 13px;
+            opacity: 0.85;
+        }
+        .date-banner {
+            background-color: var(--oculus-dark);
+            color: #38bdf8;
+            text-align: center;
+            padding: 9px 12px;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+            border-bottom: 2px solid #2563eb;
+        }
+        .container {
+            max-width: 560px;
+            margin: 18px auto 30px auto;
+            padding: 0 15px;
+        }
+        .card {
+            background: var(--card-bg);
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.07);
+            border-top: 4px solid var(--oculus-blue);
+            margin-bottom: 16px;
+        }
+        .section-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--oculus-blue);
+            margin: 0 0 12px 0;
+            padding-bottom: 6px;
+            border-bottom: 1px solid #e5e7eb;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+        .form-group {
+            margin-bottom: 14px;
+        }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            color: #374151;
+            margin-bottom: 5px;
+        }
+        .helper-text {
+            font-size: 12px;
+            color: var(--text-light);
+            margin-top: 3px;
+            display: block;
+        }
+        input[type="text"],
+        input[type="tel"],
+        input[type="time"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 15px;
+            background-color: #fff;
+            color: var(--text-main);
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: var(--oculus-blue);
+            box-shadow: 0 0 0 2px rgba(30, 58, 138, 0.15);
+        }
+        .row-2 {
+            display: flex;
+            gap: 10px;
+        }
+        .row-2 > div {
+            flex: 1;
+        }
+
+        /* Preset Chips */
+        .preset-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 10px;
+        }
+        .preset-btn {
+            background: #eef2ff;
+            color: var(--oculus-blue);
+            border: 1px solid #c7d2fe;
+            border-radius: 16px;
+            padding: 6px 11px;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        .preset-btn:hover {
+            background: #dbeafe;
+        }
+
+        /* Checkbox Cards */
+        .check-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 10px 12px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            font-size: 13px;
+            line-height: 1.4;
+        }
+        .check-item input[type="checkbox"] {
+            margin-top: 2px;
+            width: 17px;
+            height: 17px;
+            accent-color: var(--oculus-blue);
+            flex-shrink: 0;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background-color: var(--accent-green);
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(16, 185, 129, 0.3);
+        }
+        .btn-submit:hover {
+            background-color: #059669;
+        }
+        .btn-submit:disabled {
+            background-color: #9ca3af;
+            cursor: not-allowed;
+        }
+
+        /* Active Standby Status Panel */
+        #active-status-card {
+            display: none;
+            border-top-color: var(--accent-green);
+        }
+        .status-badge {
+            display: inline-block;
+            background: #d1fae5;
+            color: #065f46;
+            font-weight: 800;
+            font-size: 12px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
+        .summary-box {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 14px;
+            font-size: 14px;
+            line-height: 1.7;
+            margin-bottom: 16px;
+        }
+        .btn-withdraw {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            background-color: var(--accent-red);
+            color: white;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+        }
+        .btn-withdraw:hover {
+            background-color: #dc2626;
+        }
+    </style>
+    <!-- Firebase SDKs (Matches Legacy Shift Board) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+    <header>
+        <h1>OCULUS DAILY ON-CALL STANDBY</h1>
+        <p>Same-Day Last-Minute Shift Availability Check-In</p>
+    </header>
+
+    <div class="date-banner" id="today-banner">
+        Loading Mountain Time Date...
+    </div>
+
+    <div class="container">
+
+        <!-- ACTIVE STANDBY CONFIRMATION VIEW (Shown if already opted in today) -->
+        <div class="card" id="active-status-card">
+            <span class="status-badge">🟢 On Standby Today</span>
+            <h2 style="margin: 0 0 8px 0; font-size: 20px; color: var(--oculus-blue);">You Are Listed for Dispatch</h2>
+            <p style="font-size: 13px; color: var(--text-light); margin-top: 0;">
+                Operations coordinators can see your availability for today. Keep your phone audible for last-minute call-off offers.
+            </p>
+            <div class="summary-box" id="active-summary"></div>
+            <button type="button" class="btn-withdraw" onclick="withdrawStandby()">Withdraw / No Longer Available Today</button>
+        </div>
+
+        <!-- DAILY OPT-IN FORM -->
+        <form id="standby-form" onsubmit="submitStandby(event)">
+            
+            <!-- 1. Guard Identity & Contact -->
+            <div class="card">
+                <div class="section-title">1. Officer & Contact Info</div>
+                
+                <div class="form-group">
+                    <label for="guardName">Full Name *</label>
+                    <input type="text" id="guardName" required placeholder="e.g. Jordan Vance">
+                </div>
+
+                <div class="row-2">
+                    <div class="form-group">
+                        <label for="phone">Mobile Number *</label>
+                        <input type="tel" id="phone" required placeholder="e.g. 720-555-0199">
+                    </div>
+                    <div class="form-group">
+                        <label for="contactPref">Best Contact Method *</label>
+                        <select id="contactPref" required>
+                            <option value="Call or Text">Call or Text</option>
+                            <option value="Phone Call First">Phone Call First (DND Bypass)</option>
+                            <option value="Text Message First">Text Message First</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. Availability Window & Lead Time -->
+            <div class="card">
+                <div class="section-title">2. Today's Availability Window</div>
+                
+                <div class="form-group">
+                    <label>Quick Shift Presets (Optional)</label>
+                    <div class="preset-group">
+                        <button type="button" class="preset-btn" onclick="setWindow('06:00', '18:00')">Day (06:00–18:00)</button>
+                        <button type="button" class="preset-btn" onclick="setWindow('14:00', '23:59')">Swing (14:00–23:59)</button>
+                        <button type="button" class="preset-btn" onclick="setWindow('18:00', '06:00')">Overnight (18:00–06:00)</button>
+                        <button type="button" class="preset-btn" onclick="setWindow('00:00', '23:59')">Open All Day</button>
+                    </div>
+                </div>
+
+                <div class="row-2">
+                    <div class="form-group">
+                        <label for="availableFrom">Available Starting *</label>
+                        <input type="time" id="availableFrom" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="availableUntil">Available Until *</label>
+                        <input type="time" id="availableUntil" required>
+                    </div>
+                </div>
+
+                <div class="row-2">
+                    <div class="form-group">
+                        <label for="leadTime">Minimum Notice Needed *</label>
+                        <select id="leadTime" required>
+                            <option value="30 mins">30 Minutes (Ready Now)</option>
+                            <option value="1 hour" selected>1 Hour Notice</option>
+                            <option value="90 mins">90 Minutes Notice</option>
+                            <option value="2 hours">2 Hours Notice</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="maxShiftLength">Shift Length Capacity *</label>
+                        <select id="maxShiftLength" required>
+                            <option value="Full Shift (8-12 hrs)">Full Shift (8–12 hrs)</option>
+                            <option value="Up to 8 hrs">Up to 8 Hours</option>
+                            <option value="Relief / Partial (4-6 hrs)">Partial / Relief Only (4–6 hrs)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. Qualifications & Site Training -->
+            <div class="card">
+                <div class="section-title">3. Qualifications & Site Training</div>
+
+                <div class="form-group">
+                    <label for="clearanceType">Guard License / Clearance *</label>
+                    <select id="clearanceType" required>
+                        <option value="Unarmed">Unarmed Security Officer</option>
+                        <option value="Armed">Armed Security Officer (Valid Endorsement)</option>
+                        <option value="Patrol / Driver">Mobile Patrol / Clean MVR</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="trainedSites">Sites Already Trained At (OJT Cleared)</label>
+                    <textarea id="trainedSites" rows="2" placeholder="e.g. The Forge, Meridian Cherry Creek, Mint Urban Infinity (or type 'Any Unarmed Site')"></textarea>
+                    <span class="helper-text">Last-minute call-offs prioritize officers who already know post orders.</span>
+                </div>
+            </div>
+
+            <!-- 4. Overtime & Readiness Verification -->
+            <div class="card">
+                <div class="section-title">4. Overtime & Readiness Check</div>
+
+                <div class="form-group">
+                    <label for="otStatus">Current Weekly Hours Status *</label>
+                    <select id="otStatus" required>
+                        <option value="Straight Time (Under 32 hrs)">Straight Time (Under 32 hrs this week)</option>
+                        <option value="Close to OT (32-39 hrs)">Close to OT (32–39 hrs — partial shift safe)</option>
+                        <option value="In Overtime (40+ hrs)">Will Hit Overtime (40+ hrs — needs approval)</option>
+                    </select>
+                </div>
+
+                <label class="check-item">
+                    <input type="checkbox" id="hasTransport" required>
+                    <span><strong>Reliable Transportation:</strong> I have immediate personal transportation and uniform gear ready for today.</span>
+                </label>
+
+                <label class="check-item">
+                    <input type="checkbox" id="isRested" required>
+                    <span><strong>Rest & Fitness for Duty:</strong> I am properly rested and have not worked an overlapping shift without required rest.</span>
+                </label>
+
+                <button type="submit" class="btn-submit" id="submit-btn">✅ Check In for Today's On-Call List</button>
+            </div>
+
+        </form>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyD-SxQG5H-gD5UbwbG-PEzu6buAuOFbKSw",
+            authDomain: "oculus-opne-shift-board.firebaseapp.com",
+            projectId: "oculus-opne-shift-board",
+            storageBucket: "oculus-opne-shift-board.firebasestorage.app",
+            messagingSenderId: "282551856349",
+            appId: "1:282551856349:web:981dcb99fa0a3762353f34"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // Always compute "Today" in Denver/Mountain Time so list resets strictly at 12:00 AM local time
+        function getMountainDateInfo() {
+            const now = new Date();
+            const activeDate = new Intl.DateTimeFormat('en-CA', {
+                timeZone: 'America/Denver',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit'
+            }).format(now); // Returns "YYYY-MM-DD"
+
+            const readableDate = new Intl.DateTimeFormat('en-US', {
+                timeZone: 'America/Denver',
+                weekday: 'long',
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            }).format(now);
+
+            return { activeDate, readableDate };
+        }
+
+        const { activeDate, readableDate } = getMountainDateInfo();
+        document.getElementById('today-banner').innerText = `📅 ACTIVE ROSTER DATE: ${readableDate.toUpperCase()} (RESETS AT MIDNIGHT)`;
+
+        function setWindow(from, until) {
+            document.getElementById('availableFrom').value = from;
+            document.getElementById('availableUntil').value = until;
+        }
+
+        // Pre-fill saved officer profile fields from localStorage for faster daily check-in
+        function loadSavedProfile() {
+            const savedProfile = JSON.parse(localStorage.getItem('oculus_standby_profile') || '{}');
+            if (savedProfile.guardName) document.getElementById('guardName').value = savedProfile.guardName;
+            if (savedProfile.phone) document.getElementById('phone').value = savedProfile.phone;
+            if (savedProfile.contactPref) document.getElementById('contactPref').value = savedProfile.contactPref;
+            if (savedProfile.clearanceType) document.getElementById('clearanceType').value = savedProfile.clearanceType;
+            if (savedProfile.trainedSites) document.getElementById('trainedSites').value = savedProfile.trainedSites;
+            if (savedProfile.leadTime) document.getElementById('leadTime').value = savedProfile.leadTime;
+        }
+
+        // Check if this device already checked in for TODAY'S activeDate
+        async function checkTodayStatus() {
+            const todayRecord = JSON.parse(localStorage.getItem('oculus_standby_today') || 'null');
+            if (!todayRecord || todayRecord.activeDate !== activeDate || !todayRecord.docId) {
+                localStorage.removeItem('oculus_standby_today');
+                return;
+            }
+
+            try {
+                const docSnap = await db.collection('daily_standby').doc(todayRecord.docId).get();
+                if (docSnap.exists && docSnap.data().status === 'Active') {
+                    showActiveStatus(docSnap.data());
+                } else {
+                    localStorage.removeItem('oculus_standby_today');
+                }
+            } catch (err) {
+                console.error("Error verifying standby status:", err);
+            }
+        }
+
+        function showActiveStatus(data) {
+            document.getElementById('standby-form').style.display = 'none';
+            const statusCard = document.getElementById('active-status-card');
+            statusCard.style.display = 'block';
+
+            document.getElementById('active-summary').innerHTML = `
+                <strong>Officer:</strong> ${data.guardName} (${data.clearanceType})<br>
+                <strong>Phone:</strong> ${data.phone} (${data.contactPref})<br>
+                <strong>Window Today:</strong> ${data.availableFrom} – ${data.availableUntil}<br>
+                <strong>Notice Needed:</strong> ${data.leadTime} | <strong>Capacity:</strong> ${data.maxShiftLength}<br>
+                <strong>OT Status:</strong> ${data.otStatus}<br>
+                <strong>Trained Sites:</strong> ${data.trainedSites || 'None listed'}
+            `;
+        }
+
+        async function submitStandby(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+            btn.innerText = "Checking In...";
+
+            const guardName = document.getElementById('guardName').value.trim();
+            const phone = document.getElementById('phone').value.trim();
+            const contactPref = document.getElementById('contactPref').value;
+            const availableFrom = document.getElementById('availableFrom').value;
+            const availableUntil = document.getElementById('availableUntil').value;
+            const leadTime = document.getElementById('leadTime').value;
+            const maxShiftLength = document.getElementById('maxShiftLength').value;
+            const clearanceType = document.getElementById('clearanceType').value;
+            const trainedSites = document.getElementById('trainedSites').value.trim();
+            const otStatus = document.getElementById('otStatus').value;
+
+            // Save static profile details so tomorrow's opt-in is faster
+            localStorage.setItem('oculus_standby_profile', JSON.stringify({
+                guardName, phone, contactPref, clearanceType, trainedSites, leadTime
+            }));
+
+            const payload = {
+                activeDate: activeDate, // "YYYY-MM-DD" in America/Denver
+                readableDate: readableDate,
+                guardName: guardName,
+                phone: phone,
+                contactPref: contactPref,
+                availableFrom: availableFrom,
+                availableUntil: availableUntil,
+                leadTime: leadTime,
+                maxShiftLength: maxShiftLength,
+                clearanceType: clearanceType,
+                trainedSites: trainedSites || "General / Unspecified",
+                otStatus: otStatus,
+                hasTransport: true,
+                isRested: true,
+                status: "Active", // "Active" | "Called" | "Assigned" | "Withdrawn"
+                dispatchNotes: "",
+                checkedInAt: firebase.firestore.FieldValue.serverTimestamp()
+            };
+
+            try {
+                const docRef = await db.collection('daily_standby').add(payload);
+                localStorage.setItem('oculus_standby_today', JSON.stringify({
+                    activeDate: activeDate,
+                    docId: docRef.id
+                }));
+                showActiveStatus(payload);
+            } catch (error) {
+                alert("Error submitting standby availability: " + error.message);
+                btn.disabled = false;
+                btn.innerText = "✅ Check In for Today's On-Call List";
+            }
+        }
+
+        async function withdrawStandby() {
+            const todayRecord = JSON.parse(localStorage.getItem('oculus_standby_today') || 'null');
+            if (!todayRecord || !todayRecord.docId) return;
+
+            if (!confirm("Remove yourself from today's on-call standby list?")) return;
+
+            try {
+                await db.collection('daily_standby').doc(todayRecord.docId).update({
+                    status: "Withdrawn",
+                    withdrawnAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                localStorage.removeItem('oculus_standby_today');
+                document.getElementById('active-status-card').style.display = 'none';
+                document.getElementById('standby-form').style.display = 'block';
+                const btn = document.getElementById('submit-btn');
+                btn.disabled = false;
+                btn.innerText = "✅ Check In for Today's On-Call List";
+            } catch (error) {
+                alert("Error withdrawing from list: " + error.message);
+            }
+        }
+
+        loadSavedProfile();
+        checkTodayStatus();
+    </script>
+</body>
+</html>
