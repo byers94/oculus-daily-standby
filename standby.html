@@ -217,6 +217,34 @@
         .btn-withdraw:hover {
             background-color: #dc2626;
         }
+
+        /* Back-Link to Main Open Shift Board */
+        .nav-back-wrap {
+            margin-bottom: 14px;
+        }
+        .btn-back-board {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            width: 100%;
+            box-sizing: border-box;
+            background-color: #ffffff;
+            color: var(--oculus-blue);
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 13.5px;
+            font-weight: 700;
+            text-decoration: none;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: background-color 0.15s ease, border-color 0.15s ease;
+        }
+        .btn-back-board:hover {
+            background-color: #eff6ff;
+            border-color: var(--oculus-blue);
+        }
+        
     </style>
     <!-- Firebase SDKs (Matches Legacy Shift Board) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -235,6 +263,13 @@
 
     <div class="container">
 
+        <!-- Navigation Back to Open Shift Bidding Board -->
+        <div class="nav-back-wrap">
+            <a href="https://byers94.github.io/oculus-shift-board/" class="btn-back-board">
+                &larr; View Upcoming Open Shift Board
+            </a>
+        </div>
+        
         <!-- ACTIVE STANDBY CONFIRMATION VIEW (Shown if already opted in today) -->
         <div class="card" id="active-status-card">
             <span class="status-badge">🟢 On Standby Today</span>
